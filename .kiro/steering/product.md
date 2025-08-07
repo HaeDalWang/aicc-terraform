@@ -1,32 +1,47 @@
 # Product Overview
 
-## Saltware AI-Based Call Center (Amazon Connect)
+## OO금융지주 AI 기반 클라우드 컨택센터(AICC) 시스템
 
-This project implements an AI-powered call center system using Amazon Connect for Saltware, a cloud technology consulting company.
+Amazon Connect를 기반으로 한 차세대 AI 기반 클라우드 컨택센터 시스템으로, 기존 온프레미스 고객센터를 클라우드로 전환하고 AI 기술을 통합하여 고객 경험을 혁신합니다.
 
-### Core Features
+### 핵심 기능
 
-1. **IVR System**: Interactive Voice Response allowing customers to select services via keypad
-2. **AI Response**: Lambda-powered automated product descriptions and inquiry responses
-3. **Engineer Routing**: Direct connection to specialized engineers for detailed consultations
-4. **Real-time Monitoring**: CloudWatch dashboards for queue status and call volume tracking
-5. **Alert System**: SNS-based notifications for wait time overages
+1. **AI 음성봇 시스템**: Amazon Lex 기반 자연어 이해 및 자동 응답
+2. **실시간 STT/TTS**: Transcribe/Polly를 통한 실시간 음성 처리
+3. **GenAI 자동 응답**: 고객 질의에 대한 AI 기반 즉시 응답 생성
+4. **감정 분석 라우팅**: Comprehend 기반 실시간 감정 분석 및 스마트 라우팅
+5. **지식 검색 시스템**: Kendra + Vector DB 기반 지능형 지식 검색
+6. **통합 대시보드**: 실시간 운영 모니터링 및 AI 성능 분석
+7. **외부 시스템 연동**: CRM, Oracle DB, SMS, SSO 통합
 
-### Customer Support Structure
+### 고객 서비스 구조
 
-- **MSP Customers**: Premium support with 24/7 coverage and dedicated engineers
-- **General Customers**: Standard support during business hours
-- **Three Engineering Teams**: Leaf, Tiger, and Aqua parts with specialized expertise
+- **VIP 고객**: 우선 처리 및 전담 상담원 배정
+- **일반 고객**: 표준 서비스 및 AI 우선 응답
+- **긴급 상황**: 실시간 감지 및 즉시 에스컬레이션
+- **업무시간 외**: AI 봇 기반 기본 응답 및 콜백 서비스
 
-### Business Context
+### 사업 배경
 
-- Target market: Korean enterprises needing cloud infrastructure services
-- Services: AWS/Azure/GCP infrastructure, migration, DevOps, security, and managed operations
-- Pricing: Project-based and monthly managed service fees
-- Operating hours: Weekdays 09:00-18:00 KST
+- **발주기관**: OO금융지주 고객지원센터
+- **사업 규모**: 12억원 (부가세 포함)
+- **사업 기간**: 5개월 (2024.01 ~ 2024.05)
+- **목표**: 온프레미스 → 클라우드 전환, AI 기술 도입, 운영 효율화
+- **서비스 대상**: 금융 고객 (개인, 기업, VIP)
+- **운영 시간**: 24/7 (AI 봇) + 평일 09:00-18:00 (상담원)
 
-### Key Stakeholders
+### 주요 이해관계자
 
-- Engineers organized in three teams (Leaf, Tiger, Aqua)
-- Customer Success Representatives (CSR)
-- 24/7 Call Operations Center (COC) staff
+- **고객지원센터 관리자**: 전체 시스템 운영 및 성과 관리
+- **상담원**: AI 지원 도구를 활용한 고객 상담
+- **IT 관리자**: 시스템 운영 및 기술 지원
+- **고객**: 개선된 AI 기반 고객 서비스 경험
+- **경영진**: ROI 및 고객 만족도 향상 결과
+
+### 성공 지표 (KPI)
+
+- **고객 만족도**: 90% 이상 (감정 분석 기반)
+- **응답 시간**: 평균 30초 이내 (AI 응답)
+- **해결률**: 1차 해결률 80% 이상
+- **운영 비용**: 기존 대비 30% 절감
+- **AI 정확도**: STT 95%, 응답 추천 85% 이상

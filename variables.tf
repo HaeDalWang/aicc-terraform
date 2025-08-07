@@ -1,7 +1,9 @@
+# 변수 정의
+
 variable "aws_region" {
   description = "AWS 리전"
   type        = string
-  default     = "ap-northeast-2"  # 서울 리전
+  default     = "ap-northeast-2"
 }
 
 variable "environment" {
@@ -10,79 +12,120 @@ variable "environment" {
   default     = "dev"
 }
 
+variable "project_name" {
+  description = "프로젝트 명"
+  type        = string
+  default     = "oo-aicc"
+}
+
 variable "connect_instance_alias" {
-  description = "Connect 인스턴스 별칭"
+  description = "Amazon Connect 인스턴스 별칭"
   type        = string
-  default     = "saltware-contact-center"
+  default     = "salt-financial-aicc"
 }
 
-variable "engineer_username" {
-  description = "엔지니어 사용자명"
+variable "connect_identity_management_type" {
+  description = "Connect 사용자 관리 방식"
   type        = string
-  default     = "engineer1"
+  default     = "CONNECT_MANAGED"
+  validation {
+    condition     = contains(["CONNECT_MANAGED", "SAML", "EXISTING_DIRECTORY"], var.connect_identity_management_type)
+    error_message = "Identity management type must be CONNECT_MANAGED, SAML, or EXISTING_DIRECTORY."
+  }
 }
 
-variable "engineer_password" {
-  description = "엔지니어 초기 비밀번호"
-  type        = string
-  sensitive   = true
+variable "connect_inbound_calls_enabled" {
+  description = "인바운드 콜 활성화 여부"
+  type        = bool
+  default     = true
 }
 
-variable "engineer_first_name" {
-  description = "엔지니어 이름"
-  type        = string
-  default     = "김"
+variable "connect_outbound_calls_enabled" {
+  description = "아웃바운드 콜 활성화 여부"
+  type        = bool
+  default     = true
 }
 
-variable "engineer_last_name" {
-  description = "엔지니어 성"
-  type        = string
-  default     = "엔지니어"
+variable "connect_contact_flow_logs_enabled" {
+  description = "Contact Flow 로그 활성화 여부"
+  type        = bool
+  default     = true
 }
 
-variable "engineer_email" {
-  description = "엔지니어 이메일"
-  type        = string
+variable "connect_contact_lens_enabled" {
+  description = "Contact Lens 활성화 여부"
+  type        = bool
+  default     = true
 }
 
-variable "company_name" {
-  description = "회사명"
-  type        = string
-  default     = "Saltware"
+variable "business_hours" {
+  description = "업무 시간 설정"
+  type = object({
+    timezone = string
+    start_time = object({
+      hours   = number
+      minutes = number
+    })
+    end_time = object({
+      hours   = number
+      minutes = number
+    })
+    days = list(string)
+  })
+  default = {
+    timezone = "Asia/Seoul"
+    start_time = {
+      hours   = 9
+      minutes = 0
+    }
+    end_time = {
+      hours   = 18
+      minutes = 0
+    }
+    days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]
+  }
 }
 
-variable "alert_email" {
-  description = "알림을 받을 이메일 주소"
+variable "phone_number_country_code" {
+  description = "전화번호 국가 코드"
   type        = string
-  default     = ""
+  default     = "KR"
 }
 
-# 관리자 계정 변수들
-variable "admin_username" {
-  description = "관리자 사용자명"
+variable "phone_number_type" {
+  description = "전화번호 타입"
   type        = string
-  default     = "admin"
+  default     = "TOLL_FREE"
+  validation {
+    condition     = contains(["TOLL_FREE", "DID"], var.phone_number_type)
+    error_message = "Phone number type must be TOLL_FREE or DID."
+  }
 }
 
-variable "admin_password" {
-  description = "관리자 초기 비밀번호"
+variable "admin_email" {
+  description = "관리자 이메일"
   type        = string
-  sensitive   = true
 }
 
 variable "admin_first_name" {
   description = "관리자 이름"
   type        = string
-  default     = "관리자"
+
 }
 
 variable "admin_last_name" {
-  description = "관리자 성"
+  description = "관리자 이름"
   type        = string
-  default     = "Saltware"
+
 }
 
-variable "admin_email" {
-  description = "관리자 이메일"
+variable "admin_password" {
+  description = "관리자 비밀번호"
+  type        = string
+
+}
+
+variable "admin_username" {
+  description = "관리자 아이디"
   type        = string
 }

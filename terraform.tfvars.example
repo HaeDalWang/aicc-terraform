@@ -1,23 +1,40 @@
-# Saltware Contact Center 설정
-aws_region             = "ap-northeast-2"
-environment            = "dev"
-connect_instance_alias = "saltware-contact-center"
+# OO금융지주 AICC 시스템 설정 예시
+# 이 파일을 terraform.tfvars로 복사하고 실제 값으로 수정하세요
 
-# 엔지니어 정보
-engineer_username   = "bsd"
-engineer_password   = "bsd1234!"
-engineer_first_name = "배"
-engineer_last_name  = "승도"
-engineer_email      = "engineer@saltware.co.kr"
+# 기본 설정
+aws_region   = "ap-northeast-2"
+environment  = "dev"
+project_name = "salt-aicc"
 
-# 회사 정보
-company_name = "Saltware"
+# Amazon Connect 설정
+connect_instance_alias            = "salt-financial-aicc-dev"
+connect_identity_management_type  = "CONNECT_MANAGED"
+connect_inbound_calls_enabled     = true
+connect_outbound_calls_enabled    = true
+connect_contact_flow_logs_enabled = true
+connect_contact_lens_enabled      = true
 
-# 알림 설정
-alert_email = "admin@saltware.co.kr"
+# 업무 시간 설정
+business_hours = {
+  timezone = "Asia/Seoul"
+  start_time = {
+    hours   = 9
+    minutes = 0
+  }
+  end_time = {
+    hours   = 18
+    minutes = 0
+  }
+  days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]
+}
 
+# 전화번호 설정
+phone_number_country_code = "KR"
+phone_number_type         = "TOLL_FREE"
+
+# admin User 정보
 admin_email      = "svvwac98@saltware.co.kr"
 admin_first_name = "bae"
 admin_last_name  = "seungdo"
-admin_password   = "admin1234!"
+admin_password   = "Admin1234!"
 admin_username   = "admin"
