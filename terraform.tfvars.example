@@ -29,8 +29,8 @@ business_hours = {
 }
 
 # 전화번호 설정
-phone_number_country_code = "KR"
-phone_number_type         = "TOLL_FREE"
+phone_number_country_code = "US"
+phone_number_type         = "DID"
 
 # admin User 정보
 admin_email      = "svvwac98@saltware.co.kr"
