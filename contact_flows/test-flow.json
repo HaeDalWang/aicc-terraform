@@ -1,20 +1,73 @@
 {
   "Version": "2019-10-30",
-  "StartAction": "welcome-message",
+  "StartAction": "test-start",
+  "Metadata": {
+    "entryPointPosition": {
+      "x": 20,
+      "y": 20
+    },
+    "snapToGrid": false,
+    "ActionMetadata": {
+      "test-start": {
+        "position": {
+          "x": 20,
+          "y": 20
+        }
+      },
+      "test-message": {
+        "position": {
+          "x": 200,
+          "y": 20
+        }
+      },
+      "test-queue": {
+        "position": {
+          "x": 400,
+          "y": 20
+        }
+      },
+      "test-transfer": {
+        "position": {
+          "x": 600,
+          "y": 20
+        }
+      }
+    }
+  },
   "Actions": [
     {
-      "Identifier": "welcome-message",
+      "Identifier": "test-start",
       "Type": "MessageParticipant",
       "Parameters": {
-        "Text": "안녕하세요! Saltware입니다."
+        "Text": "테스트 플로우입니다. OO금융지주 AICC 시스템이 정상적으로 작동하고 있습니다."
       },
       "Transitions": {
-        "NextAction": "end-flow"
+        "NextAction": "test-message"
       }
     },
     {
-      "Identifier": "end-flow",
-      "Type": "DisconnectParticipant"
+      "Identifier": "test-message",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "Contact Flow 기본 구성이 완료되었습니다. 상담원에게 연결하겠습니다."
+      },
+      "Transitions": {
+        "NextAction": "test-queue"
+      }
+    },
+    {
+      "Identifier": "test-queue",
+      "Type": "SetWorkingQueue",
+      "Parameters": {
+        "Queue": "arn:aws:connect:ap-northeast-2:ACCOUNT_ID:instance/INSTANCE_ID/queue/GENERAL_QUEUE_ID"
+      },
+      "Transitions": {
+        "NextAction": "test-transfer"
+      }
+    },
+    {
+      "Identifier": "test-transfer",
+      "Type": "TransferToQueue"
     }
   ]
 }

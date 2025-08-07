@@ -11,7 +11,7 @@ resource "aws_connect_routing_profile" "admin_routing" {
   instance_id               = aws_connect_instance.aicc_instance.id
   name                      = "Admin Routing Profile"
   description               = "관리자용 라우팅 프로필"
-  default_outbound_queue_id = aws_connect_queue.basic_queue.queue_id
+  default_outbound_queue_id = aws_connect_queue.general_customer_queue.queue_id
 
   media_concurrencies {
     channel     = "VOICE"
@@ -22,7 +22,7 @@ resource "aws_connect_routing_profile" "admin_routing" {
     channel  = "VOICE"
     delay    = 0
     priority = 1
-    queue_id = aws_connect_queue.basic_queue.queue_id
+    queue_id = aws_connect_queue.general_customer_queue.queue_id
   }
 
   tags = {

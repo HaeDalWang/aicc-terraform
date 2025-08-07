@@ -1,0 +1,194 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "after-hours-start",
+  "Metadata": {
+    "entryPointPosition": {
+      "x": 20,
+      "y": 20
+    },
+    "snapToGrid": false,
+    "ActionMetadata": {
+      "after-hours-start": {
+        "position": {
+          "x": 20,
+          "y": 20
+        }
+      },
+      "after-hours-greeting": {
+        "position": {
+          "x": 200,
+          "y": 20
+        }
+      },
+      "emergency-options": {
+        "position": {
+          "x": 400,
+          "y": 20
+        }
+      },
+      "route-emergency": {
+        "position": {
+          "x": 600,
+          "y": 20
+        }
+      },
+      "route-general": {
+        "position": {
+          "x": 600,
+          "y": 150
+        }
+      },
+      "invalid-input": {
+        "position": {
+          "x": 600,
+          "y": 280
+        }
+      },
+      "set-emergency-queue": {
+        "position": {
+          "x": 800,
+          "y": 20
+        }
+      },
+      "set-after-hours-queue": {
+        "position": {
+          "x": 800,
+          "y": 150
+        }
+      },
+      "transfer-to-queue": {
+        "position": {
+          "x": 1000,
+          "y": 100
+        }
+      }
+    }
+  },
+  "Actions": [
+    {
+      "Identifier": "after-hours-start",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "안녕하세요. OO금융지주 고객지원센터입니다."
+      },
+      "Transitions": {
+        "NextAction": "after-hours-greeting"
+      }
+    },
+    {
+      "Identifier": "after-hours-greeting",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "현재 업무시간 외입니다. 업무시간은 평일 오전 9시부터 오후 6시까지입니다."
+      },
+      "Transitions": {
+        "NextAction": "emergency-options"
+      }
+    },
+    {
+      "Identifier": "emergency-options",
+      "Type": "GetUserInput",
+      "Parameters": {
+        "Text": "긴급한 경우 1번을, 일반 문의는 2번을, 콜백 서비스는 3번을 눌러주세요.",
+        "InputTimeLimitSeconds": "15",
+        "InputValidation": {
+          "CustomValidation": {
+            "MaximumLength": "1"
+          }
+        }
+      },
+      "Transitions": {
+        "NextAction": "invalid-input",
+        "Conditions": [
+          {
+            "NextAction": "route-emergency",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "1"
+              ]
+            }
+          },
+          {
+            "NextAction": "route-general",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "2"
+              ]
+            }
+          },
+          {
+            "NextAction": "route-general",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "3"
+              ]
+            }
+          }
+        ],
+        "Errors": [
+          {
+            "NextAction": "invalid-input",
+            "ErrorType": "NoMatchingCondition"
+          }
+        ]
+      }
+    },
+    {
+      "Identifier": "route-emergency",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "긴급 상황으로 분류되었습니다. 담당자에게 연결하겠습니다."
+      },
+      "Transitions": {
+        "NextAction": "set-emergency-queue"
+      }
+    },
+    {
+      "Identifier": "route-general",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "업무시간 외 문의로 접수되었습니다. 다음 업무일에 처리하겠습니다."
+      },
+      "Transitions": {
+        "NextAction": "set-after-hours-queue"
+      }
+    },
+    {
+      "Identifier": "invalid-input",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "잘못된 입력입니다. 다시 시도해 주세요."
+      },
+      "Transitions": {
+        "NextAction": "emergency-options"
+      }
+    },
+    {
+      "Identifier": "set-emergency-queue",
+      "Type": "SetWorkingQueue",
+      "Parameters": {
+        "Queue": "arn:aws:connect:ap-northeast-2:ACCOUNT_ID:instance/INSTANCE_ID/queue/EMERGENCY_QUEUE_ID"
+      },
+      "Transitions": {
+        "NextAction": "transfer-to-queue"
+      }
+    },
+    {
+      "Identifier": "set-after-hours-queue",
+      "Type": "SetWorkingQueue",
+      "Parameters": {
+        "Queue": "arn:aws:connect:ap-northeast-2:ACCOUNT_ID:instance/INSTANCE_ID/queue/AFTER_HOURS_QUEUE_ID"
+      },
+      "Transitions": {
+        "NextAction": "transfer-to-queue"
+      }
+    },
+    {
+      "Identifier": "transfer-to-queue",
+      "Type": "TransferToQueue"
+    }
+  ]
+}
