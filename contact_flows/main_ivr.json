@@ -1,0 +1,20 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "welcome-message",
+  "Actions": [
+    {
+      "Identifier": "welcome-message",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "안녕하세요! Saltware 입니다. 감사합니다!"
+      },
+      "Transitions": {
+        "NextAction": "end-flow"
+      }
+    },
+    {
+      "Identifier": "end-flow",
+      "Type": "DisconnectParticipant"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+# Saltware Contact Center 설정
+aws_region = "ap-northeast-2"
+environment = "dev"
+connect_instance_alias = "saltware-contact-center"
+
+# 엔지니어 정보
+engineer_username = "engineer1"
+engineer_password = "TempPassword123!"  # 실제 배포시 변경 필요
+engineer_first_name = "김"
+engineer_last_name = "엔지니어"
+engineer_email = "engineer@saltware.co.kr"
+
+# 회사 정보
+company_name = "Saltware"
+
+# 알림 설정
+alert_email = "admin@saltware.co.kr"
+
+# 관리자 정보
+admin_username = "admin"
+admin_password = "AdminPassword123!"  # 실제 배포시 변경 필요
+admin_first_name = "관리자"
+admin_last_name = "Saltware"
+admin_email = "admin@saltware.co.kr"
