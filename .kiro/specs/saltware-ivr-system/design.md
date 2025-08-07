@@ -1,114 +1,140 @@
-# Saltware IVR 시스템 설계 문서
+# OO금융지주 AI 기반 클라우드 컨택센터(AICC) 시스템 설계 문서
 
 ## 개요
 
-기존 COC 업무 가이드를 기반으로 한 실용적인 IVR 시스템 설계. 고객을 정확히 분류하고 적절한 담당자에게 연결하는 것이 핵심 목표입니다.
+Amazon Connect를 기반으로 한 AI 기반 클라우드 컨택센터 시스템 설계. 실시간 STT/TTS, GenAI 응답, 감정 분석, 지식 검색 등 AI 기술을 통합하여 고객 경험을 혁신하고 운영 효율성을 극대화합니다.
 
 ## 아키텍처
 
 ### 전체 시스템 구조
 ```
-전화 착신 → Main IVR Flow → 고객 분류 → 세부 처리 Flow들
-                ↓
-        [고객 정보 수집] → [인증] → [분류] → [라우팅]
-                ↓
-        Lambda Functions (고객 DB 조회, 시간 확인, 로깅)
-                ↓
-        DynamoDB (고객 정보), CloudWatch (모니터링)
+고객 전화 → Amazon Connect → AI 음성봇(Lex) → 실시간 STT(Transcribe)
+                ↓                                    ↓
+        Contact Flow 라우팅                    GenAI 응답 생성
+                ↓                                    ↓
+        감정 분석(Comprehend)                  TTS 음성 변환(Polly)
+                ↓                                    ↓
+        지식 검색(Kendra)                     상담원 Dashboard
+                ↓                                    ↓
+        Vector DB 검색                        CRM/DB 연동
+                ↓                                    ↓
+        상담원 연결                           리포트/통계
 ```
 
-### Contact Flow 분리 전략
-단일 Flow로는 복잡성 관리가 어려우므로 **모듈화된 Flow 구조** 채택:
+### AI 기반 처리 Flow
+**AI-First 접근 방식**으로 고객 문의를 자동화하고 필요시에만 상담원 연결:
 
-1. **Main Entry Flow**: 초기 접수 및 기본 분류
-2. **Customer Authentication Flow**: 고객 정보 수집 및 인증
-3. **MSP Customer Flow**: MSP 고객 전용 처리
-4. **General Customer Flow**: 일반 고객 처리
-5. **After Hours Flow**: 업무시간 외 처리
-6. **Emergency Flow**: 긴급 상황 처리
+1. **AI Voice Bot Flow**: Lex 기반 초기 응대 및 의도 파악
+2. **Real-time STT Flow**: Transcribe를 통한 실시간 음성 인식
+3. **GenAI Response Flow**: 고객 질의에 대한 AI 자동 응답
+4. **Emotion Analysis Flow**: Comprehend 기반 감정 분석 및 라우팅
+5. **Knowledge Search Flow**: Kendra + Vector DB 기반 지식 검색
+6. **Agent Handoff Flow**: 복잡한 문의 시 상담원 연결
 
 ## 컴포넌트 및 인터페이스
 
-### 1. Contact Flows
+### 1. AI 음성봇 및 Contact Flows
 
-#### 1.1 Main Entry Flow
-**목적**: 초기 접수 및 기본 라우팅
-**입력**: 고객 전화
-**출력**: 적절한 세부 Flow로 전환
-
-```mermaid
-graph TD
-    A[전화 착신] --> B[환영 메시지]
-    B --> C[시간 확인]
-    C --> D{업무시간?}
-    D -->|Yes| E[Customer Auth Flow]
-    D -->|No| F[After Hours Flow]
-```
-
-#### 1.2 Customer Authentication Flow
-**목적**: 고객 정보 수집 및 인증
-**입력**: Main Flow에서 전환
-**출력**: 인증된 고객 정보 + 분류 결과
+#### 1.1 AI Voice Bot (Amazon Lex)
+**목적**: 자연어 이해 기반 초기 고객 응대
+**입력**: 고객 음성 입력
+**출력**: 의도 파악 및 적절한 Flow 라우팅
 
 ```mermaid
 graph TD
-    A[고객 정보 수집] --> B[음성 인식: 고객사명/담당자명]
-    B --> C[AWS Account ID 입력]
-    C --> D[Lambda: 고객 DB 조회]
-    D --> E{고객 분류}
-    E -->|MSP| F[MSP Flow]
-    E -->|일반| G[General Flow]
-    E -->|미등록| H[신규 고객 처리]
+    A[고객 전화] --> B[Lex 음성봇 응대]
+    B --> C[의도 분석]
+    C --> D{문의 유형}
+    D -->|간단 문의| E[AI 자동 응답]
+    D -->|복잡 문의| F[상담원 연결]
+    D -->|정보 조회| G[지식 검색]
 ```
 
-#### 1.3 MSP Customer Flow
-**목적**: MSP 고객 전용 처리
-**특징**: 우선 처리, 15분 내 콜백 약속
+#### 1.2 Real-time STT Flow (Amazon Transcribe)
+**목적**: 실시간 음성을 텍스트로 변환
+**입력**: 고객 음성 스트림
+**출력**: 실시간 텍스트 변환 결과
 
-#### 1.4 General Customer Flow
-**목적**: 일반 고객 처리
-**특징**: 이메일 우선 안내, 필요시 담당자 연결
-
-#### 1.5 After Hours Flow
-**목적**: 업무시간 외 처리
-**특징**: 이메일 안내, 긴급시 특별 처리
-
-#### 1.6 Emergency Flow
-**목적**: 긴급 상황 우선 처리
-**특징**: 최우선 큐, 즉시 연결
-
-### 2. Lambda Functions
-
-#### 2.1 Customer Lookup Function
-```python
-def lambda_handler(event, context):
-    # 고객사명, AWS Account ID로 고객 정보 조회
-    # MSP vs 일반 고객 분류
-    # 담당자 정보 반환
+```mermaid
+graph TD
+    A[음성 스트림] --> B[Transcribe 실시간 STT]
+    B --> C[텍스트 변환]
+    C --> D[GenAI 분석]
+    D --> E[응답 생성]
+    E --> F[Polly TTS]
+    F --> G[음성 응답]
 ```
 
-#### 2.2 Business Hours Check Function
+#### 1.3 GenAI Response Flow
+**목적**: 고객 질의에 대한 AI 기반 자동 응답
+**특징**: 실시간 응답, 지식 베이스 연동
+
+#### 1.4 Emotion Analysis Flow (Amazon Comprehend)
+**목적**: 실시간 감정 분석 및 상담원 라우팅
+**특징**: 부정적 감정 감지 시 우선 처리
+
+#### 1.5 Knowledge Search Flow (Amazon Kendra + Vector DB)
+**목적**: 지식 베이스 검색 및 응답 추천
+**특징**: 벡터 유사도 검색, 실시간 추천
+
+#### 1.6 Agent Dashboard Flow
+**목적**: 상담원 전용 인터페이스 제공
+**특징**: 실시간 정보 표시, CRM 연동
+
+### 2. AI 및 Lambda Functions
+
+#### 2.1 GenAI Response Function
 ```python
 def lambda_handler(event, context):
-    # 현재 시간이 업무시간인지 확인
-    # 한국 시간 기준 평일 09:00-18:00
-    # 공휴일 처리 포함
+    # STT 결과를 받아 GenAI로 응답 생성
+    # 지식 베이스 검색 결과 활용
+    # 컨텍스트 기반 개인화 응답
+    # TTS용 텍스트 반환
 ```
 
-#### 2.3 Call Logging Function
+#### 2.2 Real-time STT Processing Function
 ```python
 def lambda_handler(event, context):
-    # 통화 정보 로깅
-    # 고객 정보, 처리 결과, 담당자 배정 등
-    # CloudWatch 및 DynamoDB에 저장
+    # Transcribe 스트림 처리
+    # 실시간 텍스트 변환 결과 처리
+    # 감정 분석 연동
+    # 상담원 화면 실시간 업데이트
 ```
 
-#### 2.4 Ticket Creation Function
+#### 2.3 Emotion Analysis Function
 ```python
 def lambda_handler(event, context):
-    # 자동 티켓 생성
-    # Zendesk API 연동
-    # 담당자 자동 배정
+    # Comprehend 감정 분석 수행
+    # 부정적 감정 감지 시 알림
+    # 상담원 라우팅 우선순위 조정
+    # 실시간 대시보드 업데이트
+```
+
+#### 2.4 Knowledge Search Function
+```python
+def lambda_handler(event, context):
+    # Kendra 지식 검색 수행
+    # Vector DB 유사도 검색
+    # 검색 결과 랭킹 및 필터링
+    # 상담원 추천 답변 제공
+```
+
+#### 2.5 CRM Integration Function
+```python
+def lambda_handler(event, context):
+    # Oracle DB 고객 정보 조회
+    # CRM 시스템 연동
+    # 상담 내용 자동 기록
+    # SMS/알림톡 발송 연동
+```
+
+#### 2.6 Vector DB Management Function
+```python
+def lambda_handler(event, context):
+    # 문서 임베딩 생성 및 저장
+    # Vector 유사도 검색 수행
+    # 지식 베이스 업데이트 처리
+    # 검색 성능 최적화
 ```
 
 ### 3. 데이터 저장소
